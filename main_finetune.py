@@ -155,15 +155,6 @@ def get_args_parser():
 
     return parser
 
-def prepare_model(chkpt_dir, arch='mae_vit_large_patch16'):
-    # build model
-    model = getattr(models_mae, arch)()
-    # load model
-    checkpoint = torch.load(chkpt_dir, map_location='cpu')
-    msg = model.load_state_dict(checkpoint['model'], strict=False)
-    print(msg)
-    return model
-
 def main(args):
     # Initialize distributed mode
     misc.init_distributed_mode(args)
@@ -206,12 +197,8 @@ def main(args):
     )
 
     # Model setup
-    # model = models_vit.__dict__[args.model](
-    #     num_classes=200, # Update this to 200 for Tiny ImageNet
-    #     drop_path_rate=args.drop_path,
-    #     global_pool=args.global_pool,
-    # )
-    model = prepare_model('model_pths/mae_visualize_vit_large.pth', 'mae_vit_large_patch16')
+    model = models_mae.__dict__[args.model](norm_pix_loss=args.norm_pix_loss)
+
     # Load model for evaluation
     model.to(device)
 
